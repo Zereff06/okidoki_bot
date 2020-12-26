@@ -24,10 +24,10 @@ class SQLighter:
         					);
         					""")
         self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS top (
+        CREATE TABLE IF NOT EXISTS premium (
         						category        TEXT        NOT NULL ,
         						city            TEXT        NOT NULL,
-        						link            TEXT        NOT NULL,
+        						link            TEXT        NOT NULL
         					);
         					""")
 

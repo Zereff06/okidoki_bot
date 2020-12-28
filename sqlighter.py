@@ -27,7 +27,7 @@ class SQLighter:
         CREATE TABLE IF NOT EXISTS premium (
         						category        TEXT        NOT NULL ,
         						city            TEXT        NOT NULL,
-        						link            TEXT        NOT NULL
+        						link            TEXT        NOT NULL UNIQUE 
         					);
         					""")
 
@@ -99,8 +99,7 @@ class SQLighter:
     def add_new_user(self, user, status=True):
         """Добавляем нового подписчика"""
         with self.conn:
-            result = self.cursor.execute(
-                f"INSERT INTO users(user_id,first_name,last_name )  VALUES({user.id}, '{user.first_name}', '{user.last_name}')")
+            result = self.cursor.execute(f"INSERT INTO users(user_id,first_name,last_name )  VALUES({user.id}, '{user.first_name}', '{user.last_name}')")
             self.cursor.execute(f"INSERT INTO cities(user_id) VALUES({user.id})")
             self.cursor.execute(f"INSERT INTO categories(user_id)  VALUES({user.id})")
             self.conn.commit()

@@ -2,29 +2,19 @@ from sqlighter import sql
 import config
 from aiogram import types
 from aiogram.dispatcher.filters import Text
-
-
-
-
-
-
-
-
-
-
+import start
 
 dp = config.dp
 bot = config.bot
 
 
 async def send_post(user_id, post):
-    capture = post['title'] + "  =>  " + post['price'] + '\n' + post['city'] + "\n" + post['description'] + "\n\n" + \
-              post["link"]
+    capture = post['title'] + "\n" +"Цена: " +  post['price'] +'  ' + post['city'] + "\n" + post['description'] + "\n\n" + post["link"]
     await bot.send_photo(
         user_id,
         post['image'],
         caption=capture,
-        disable_notification=False
+        disable_notification=False #Бесшумный режим выключен
     )
 
 
@@ -75,6 +65,13 @@ async def unsubscribe(message: types.Message):
         sql.add_new_user(message.from_user, False)
         await message.answer("Вы итак не подписаны.")
 
+@dp.message_handler(commands=['new_parse'])
+async def unsubscribe(message: types.Message):
+    if message.chat.id == config.settings['ADMIN_ID']:
+        await message.answer('Запущено новое сканирование')
+        await start.starting_okidoki()
+    else:
+        await message.answer('У вас нет прав для этой команды :с')
 
 # Выбор города
 @dp.message_handler(commands=['city'])

@@ -1,2 +1,2 @@
 @echo off
-python "D:\Code\BATs\okidoki\okidoki.py" 
+python "D:\Code\Python\Projects\okidoki\start.py" 

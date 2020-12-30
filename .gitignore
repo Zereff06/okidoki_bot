@@ -1,5 +1,6 @@
-/.idea/
-/__pycache__/
-/venv/
-/server.db
+/venv
+/.idea
+/__pycache__
 config.py
+server.db
+.gitignore

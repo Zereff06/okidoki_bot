@@ -1,8 +1,8 @@
 settings = {
-    "API_TOKEN" : '1011591677:AAFBocK3vYCJ6dxCVV6_5qbBXmDq99jNRWE',
+    "API_TOKEN" : '0',
     "HOST": 'https://www.okidoki.ee',
     'HOST_POSTS': 'https://www.okidoki.ee/ru/buy/',
-    "ADMIN_ID": 967215898
+    "ADMIN_ID": 1
 }
 
 sort = {

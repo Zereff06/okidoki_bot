@@ -8,21 +8,22 @@ dp = config.dp
 bot = config.bot
 
 
-async def send_post(user_id, post):
+async def send_post(user_id, post, notification):
     capture = post['title'] + "\n" +"Цена: " +  post['price'] +'  ' + post['city'] + "\n" + post['description']
 
     keyboard = types.InlineKeyboardMarkup()
     url_btn = types.InlineKeyboardButton(text='Открыть', url=post['link'])
     keyboard.add(url_btn)
 
+    print('notification is: ' , notification)
+
     await bot.send_photo(
         user_id,
         post['image'],
         caption=capture,
         reply_markup=keyboard,
-        disable_notification=False #Бесшумный режим выключен
+        disable_notification= not notification #Бесшумный режим выключен если True
     )
-
 
 # Buttons
 # cities

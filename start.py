@@ -27,26 +27,24 @@ HOST_POSTS = config.settings['HOST_POSTS']
 
 # Логика запуска парсинга и отправка
 async def starting_okidoki():
-    categories = config.categories
-    cities = config.cities
+    for category in config.categories:
 
-    for category in categories:
-
-        for city in cities:
+        for city in config.cities:
 
             okidoki = ok.Okidoki(category, city)
             data = okidoki.get_data()
 
-            if data is False:
-                continue
+            if data is False: continue
 
-            for user in data['users']: # Для каждого подписсичка
-                user = user[0]
+            for user_id in data['users'][0]: # Для каждого подписсичка
+                # user = user[0]
+                notification = sql.check_user_notification_timer(user_id)
                 for post in data['posts']: # Отправляются все посты на которые он подписан
                     try:
-                        await commands.send_post(user, post)
+                        await commands.send_post(user_id, post, notification)
+                        if notification: notification = False
                     except:
-                        print("Не удалось найти слудуюший чат: " + user)
+                        print("Ошибка при отправке след. юзеру:", user_id)
 
             okidoki.update_bd()
     print('Updated posts')

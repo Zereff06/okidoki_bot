@@ -1,8 +1,9 @@
+import secret
 settings = {
-    "API_TOKEN" : '1011591677:AAFBocK3vYCJ6dxCVV6_5qbBXmDq99jNRWE',
+    "API_TOKEN" : secret.API_TOKEN,
+    "ADMIN_ID": secret.ADMIN_ID,
     "HOST": 'https://www.okidoki.ee',
     'HOST_POSTS': 'https://www.okidoki.ee/ru/buy/',
-    "ADMIN_ID": 967215898
 }
 
 sort = {

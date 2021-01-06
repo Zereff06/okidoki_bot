@@ -33,7 +33,7 @@ class Okidoki:
         post_links, premium_links = self.parse_page()  # Получили все ссылки на все посты
 
         is_main = len(post_links) > 0
-        is_premium = len(post_links) > 0
+        is_premium = len(premium_links) > 0
 
         # Сортировка новых от старых
         # main
@@ -111,7 +111,10 @@ class Okidoki:
                 price = html.select_one('.item-details .price').text
             except:
                 pass
-
+            try:
+                price = html.select_one('.item-details .free').text
+            except:
+                pass
             try:
                 poster = html.select_one('.large-photo img').get('src')[2:]
             except:
@@ -193,7 +196,7 @@ class Okidoki:
                 self.update_bd()
             exit()
 
-        if TEST_MODE == 'sort':
+        if TEST_MODE == 'pets':
             if self.category != 'pets': return True
             if self.city != 'tallinn': return True
         if TEST_MODE == 'parsing_off': return True

@@ -21,7 +21,7 @@ class SQLighter:
         						last_name       TEXT        DEFAULT 'empty',
         						subscription    BOOLEAN     DEFAULT 1,
         						permissions     TEXT        DEFAULT 'empty',
-                                timer           INT         DEFAULT 71000       NOT NULL,
+                                timer           INT         DEFAULT 1750       NOT NULL,
                                 last_timer_time DATETIME
         					);
         					""")
@@ -30,6 +30,13 @@ class SQLighter:
         						category        TEXT        NOT NULL ,
         						city            TEXT        NOT NULL,
         						link            TEXT        NOT NULL    UNIQUE 
+        					);
+        					""")
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS blacklist (
+        						link            TEXT        NOT NULL UNIQUE,
+        						category        TEXT        NOT NULL,
+        						city            TEXT        NOT NULL     
         					);
         					""")
 

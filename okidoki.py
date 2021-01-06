@@ -5,7 +5,7 @@ import sqlighter
 
 sql = sqlighter.sql
 HOST = config.settings['HOST']
-TEST_MODE = 'parsing_off'
+TEST_MODE = False
 UPDATE_SQL = False
 
 

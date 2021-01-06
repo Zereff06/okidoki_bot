@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 
 
 class SQLighter:
@@ -15,19 +16,27 @@ class SQLighter:
     def create_table_if_no_exist(self):
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-        						user_id         INT         NOT NULL ,
+        						user_id         INT (10)    NOT NULL ,
         						first_name      TEXT        DEFAULT 'empty',
         						last_name       TEXT        DEFAULT 'empty',
         						subscription    BOOLEAN     DEFAULT 1,
-        						permissions     TEXT        DEFAULT 'empty'
-        						
+        						permissions     TEXT        DEFAULT 'empty',
+                                timer           INT         DEFAULT 1750       NOT NULL,
+                                last_timer_time DATETIME
         					);
         					""")
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS premium (
         						category        TEXT        NOT NULL ,
         						city            TEXT        NOT NULL,
-        						link            TEXT        NOT NULL UNIQUE 
+        						link            TEXT        NOT NULL    UNIQUE 
+        					);
+        					""")
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS blacklist (
+        						link            TEXT        NOT NULL UNIQUE,
+        						category        TEXT        NOT NULL,
+        						city            TEXT        NOT NULL     
         					);
         					""")
 
@@ -99,9 +108,19 @@ class SQLighter:
     def add_new_user(self, user, status=True):
         """Добавляем нового подписчика"""
         with self.conn:
-            result = self.cursor.execute(f"INSERT INTO users(user_id,first_name,last_name )  VALUES({user.id}, '{user.first_name}', '{user.last_name}')")
-            self.cursor.execute(f"INSERT INTO cities(user_id) VALUES({user.id})")
-            self.cursor.execute(f"INSERT INTO categories(user_id)  VALUES({user.id})")
+            result = self.cursor.execute(
+                f"INSERT INTO users(user_id,first_name,last_name )  VALUES({user.id}, '{user.first_name}', '{user.last_name}')")
+
+            # city
+            in_bd = self.cursor.execute(f"SELECT user_id FROM cities WHERE user_id = {user.id}").fetchone()
+            if not in_bd:
+                self.cursor.execute(f"INSERT INTO cities(user_id) VALUES({user.id})")
+
+            # category
+            in_bd = self.cursor.execute(f"SELECT user_id FROM categories WHERE user_id = {user.id}").fetchone()
+            if not in_bd:
+                self.cursor.execute(f"INSERT INTO categories(user_id)  VALUES({user.id})")
+
             self.conn.commit()
             return bool(result)
 
@@ -144,21 +163,21 @@ class SQLighter:
         with self.conn:
             return self.cursor.execute(f"SELECT {cell} FROM table  GROUP BY {cell}")
 
-    def get_table(self, table):
-        """Достать все данные из таблицы"""
-        with self.conn:
-            data_table = self.cursor.execute(f"SELECT * FROM {table}")
-            names = list(map(lambda x: x[0], data_table.description))
-            category_dict = {}
-
-            values = data_table.fetchall()
-            for i, category in enumerate(names):
-                if i == 0: continue
-                users_array = []
-                for user in values:
-                    if user[i] == 1: users_array.append(user[0])
-                category_dict[names[i]] = users_array
-            return category_dict
+    # def get_table(self, table):
+    #     """Достать все данные из таблицы"""
+    #     with self.conn:
+    #         data_table = self.cursor.execute(f"SELECT * FROM {table}")
+    #         names = list(map(lambda x: x[0], data_table.description))
+    #         category_dict = {}
+    #
+    #         values = data_table.fetchall()
+    #         for i, category in enumerate(names):
+    #             if i == 0: continue
+    #             users_array = []
+    #             for user in values:
+    #                 if user[i] == 1: users_array.append(user[0])
+    #             category_dict[names[i]] = users_array
+    #         return category_dict
 
     def get_table_params(self, tables, params=''):
         """Достать все данные из таблицы с улсовием"""
@@ -175,6 +194,25 @@ class SQLighter:
                     if user[i] == 1: users_array.append(user[0])
                 category_dict[names[i]] = users_array
             return category_dict
+
+    def update_last_notification_timer(self, user_id):
+        self.cursor.execute(f"UPDATE users SET last_timer_time = '{datetime.datetime.now()}' WHERE user_id = {user_id}")
+        self.conn.commit()
+
+    def check_user_notification_timer(self, user_id):
+        timer = self.cursor.execute(f"SELECT timer FROM users WHERE user_id = {user_id}").fetchone()[0]
+        result = self.cursor.execute(f"""
+            SELECT user_id 
+            FROM users
+            WHERE  last_timer_time < '{datetime.datetime.now() - datetime.timedelta(seconds=timer)}'
+        """).fetchone()
+
+        if result is None:
+            result = False
+        else:
+            result = result[0]
+            self.update_last_notification_timer(result)
+        return result
 
 
 sql = SQLighter('server.db')

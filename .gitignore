@@ -1,6 +1,7 @@
 /venv
 /.idea
 /__pycache__
+buttons/__pycache__/
 config.py
 server.db
 .gitignore

@@ -1,12 +1,14 @@
+import sqlighter
 from bs4 import BeautifulSoup as bs
 import config
 import requests
-import sqlighter
 
 sql = sqlighter.sql
 HOST = config.settings['HOST']
 TEST_MODE = False
 UPDATE_SQL = False
+
+
 
 
 class Okidoki:
@@ -19,6 +21,17 @@ class Okidoki:
         self.old_premium_posts = []
         self.new_last_posts = []
         self.count_of_premiums = 0
+
+    def test_mode(self):
+        if TEST_MODE == 'links':
+            if UPDATE_SQL:
+                self.update_bd()
+            exit()
+
+        if TEST_MODE == 'pets':
+            if self.category != 'pets': return True
+            if self.city != 'tallinn': return True
+        if TEST_MODE == 'parsing_off': return True
 
     def get_data(self):
         return self.start()
@@ -190,13 +203,3 @@ class Okidoki:
 
         sql.conn.commit()
 
-    def test_mode(self):
-        if TEST_MODE == 'links':
-            if UPDATE_SQL:
-                self.update_bd()
-            exit()
-
-        if TEST_MODE == 'pets':
-            if self.category != 'pets': return True
-            if self.city != 'tallinn': return True
-        if TEST_MODE == 'parsing_off': return True

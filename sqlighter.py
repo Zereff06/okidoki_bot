@@ -134,9 +134,8 @@ class SQLighter:
     def update_item_bool(self, table, item, user_id):
         with self.conn:
             # Проверка, есть ли юзер вообще в таблице
-            user_exist_in_table = self.cursor.execute(
-                f"SELECT EXISTS(SELECT user_id FROM {table} WHERE  user_id = {user_id} )").fetchone()
-            if not user_exist_in_table[0]:
+            user_exist_in_table = self.cursor.execute(f"SELECT EXISTS(SELECT user_id FROM {table} WHERE  user_id = {user_id} )").fetchone()[0]
+            if not user_exist_in_table:
                 print(f"INSERT INTO {table}(user_id) VALUES ({user_id})")
                 self.cursor.execute(f"INSERT INTO {table}(user_id) VALUES ({user_id})")
                 self.conn.commit()
@@ -163,21 +162,6 @@ class SQLighter:
         with self.conn:
             return self.cursor.execute(f"SELECT {cell} FROM table  GROUP BY {cell}")
 
-    # def get_table(self, table):
-    #     """Достать все данные из таблицы"""
-    #     with self.conn:
-    #         data_table = self.cursor.execute(f"SELECT * FROM {table}")
-    #         names = list(map(lambda x: x[0], data_table.description))
-    #         category_dict = {}
-    #
-    #         values = data_table.fetchall()
-    #         for i, category in enumerate(names):
-    #             if i == 0: continue
-    #             users_array = []
-    #             for user in values:
-    #                 if user[i] == 1: users_array.append(user[0])
-    #             category_dict[names[i]] = users_array
-    #         return category_dict
 
     def get_table_params(self, tables, params=''):
         """Достать все данные из таблицы с улсовием"""

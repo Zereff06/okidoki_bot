@@ -1,7 +1,6 @@
 from sqlighter import sql
 import config
 from aiogram import types
-from aiogram.dispatcher.filters import Text
 import start
 from bs4 import BeautifulSoup as bs
 import requests
@@ -26,14 +25,12 @@ async def send_post(user_id, post, notification):
         disable_notification= not notification #Бесшумный режим выключен если True
     )
 
+
+
+
+
+
 # Commands
-
-
-
-
-
-
-
 @dp.message_handler(commands=['new_parse'])
 async def unsubscribe(message: types.Message):
     if message.chat.id == config.settings['ADMIN_ID']:
@@ -50,7 +47,7 @@ async def my_categories(message: types.Message):
     link = message.text[len('/add_blacklist '):]
     in_bd = sql.cursor.execute(f"SELECT COUNT(link) FROM blacklist WHERE link = '{link}'").fetchone()
     if len(in_bd)>0:
-        city, category = parsing_page_city_category(link)
+        city, category = get_city_and_category_from_page(link)
         sql.cursor.execute(f"INSERT INTO blacklist(link, city, category)  VALUES ('{link}', '{city}', '{category}')")
         sql.conn.commit()
         await message.answer("Этот пост удачно добавлен в чёрный список")
@@ -58,7 +55,7 @@ async def my_categories(message: types.Message):
         await message.answer("Этот пост уже в чёрном списке")
 
 
-def parsing_page_city_category(link):
+async def get_city_and_category_from_page(link):
     r = requests.get(link)
     html = bs(r.content, 'html.parser')
     parsed_city, parsed_category = 'empty', 'empty'
@@ -79,7 +76,7 @@ def parsing_page_city_category(link):
 
     return [parsed_city, parsed_category]
 
-def check_permission(user_id, perm):
+async def check_permission(user_id, perm):
     user_perm = sql.cursor.execute(f"SELECT permissions FROM users WHERE user_id = '{user_id}'").fetchone()[0]
     perm = perm.lower()
     if user_perm == 'empty':
@@ -97,10 +94,10 @@ def check_permission(user_id, perm):
 @dp.message_handler()
 async def echo(message: types.Message):
 
-    if await buttons.city.start(message): return
-    elif await buttons.category.start(message): return
-    elif await buttons.subscribe.start(message): return
-    elif await buttons.button_menu.start(message): return
-    elif await buttons.button_menu.start(message): return
+    if   await buttons.button_menu.start(message):  return
+    elif await buttons.city.start(message):         return
+    elif await buttons.category.start(message):     return
+    elif await buttons.subscribe.start(message):    return
+    elif await buttons.timer.start(message):        return
     else:
         await message.answer('К сожалению, я тебя не понял :с')

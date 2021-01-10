@@ -4,15 +4,15 @@ import buttons.button_menu as button_menu
 
 SUBSCRIBE = 'Подписаться'
 UNSUBSCRIBE = 'Отписаться'
-SUBSCRIBE_UNSUBSCRIBE = 'Подписка/Отписка'
+NAME = 'Подписка/Отписка'
 
 
-subscribe_button = types.ReplyKeyboardMarkup(resize_keyboard=False).add(SUBSCRIBE)
-unsubscribe_button = types.ReplyKeyboardMarkup(resize_keyboard=False).add(UNSUBSCRIBE)
+subscribe_button = types.ReplyKeyboardMarkup(resize_keyboard=False).add(SUBSCRIBE).add('Главное меню')
+unsubscribe_button = types.ReplyKeyboardMarkup(resize_keyboard=False).add(UNSUBSCRIBE).add('Главное меню')
 
 
 async def start(message: types.Message):
-    if message.text == SUBSCRIBE_UNSUBSCRIBE:
+    if message.text == NAME:
         subscribe_status = await get_user_subscribe_status(message)
         if subscribe_status:
             await message.answer("Сейчас вы подписаны на расслыку", reply_markup=unsubscribe_button)

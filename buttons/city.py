@@ -5,18 +5,18 @@ from sqlighter import sql
 dp = config.dp
 bot = config.bot
 
-CHOOSE_CITY = 'Выбор города'
+NAME = 'Выбор города'
 
 # Города
 commands_cities = [str(city['ru']) for city in config.cities]
 buttons_cities = [types.KeyboardButton(city) for city in commands_cities]
 f_button_city = types.ReplyKeyboardMarkup(resize_keyboard=True)
-f_button_city.add(*buttons_cities)
+f_button_city.add(*buttons_cities).add('Главное меню')
 
 
 # Выбор города
 async def start(message: types.Message):
-    if message.text == CHOOSE_CITY:
+    if message.text == NAME:
         await message.answer('Объявления из каких городов будут вам присылаться?', reply_markup=f_button_city)
         return True
     else:

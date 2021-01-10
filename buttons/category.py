@@ -5,21 +5,21 @@ from sqlighter import sql
 dp = config.dp
 bot = config.bot
 
-CHOOSE_CATEGORY = 'Выбор категории'
+NAME = 'Выбор категории'
 ru_array_category = [c['ru'] for c in config.categories]
 
 # button_names
 commands_categories = [str(category['ru']) for category in config.categories]
 buttons_categories = [types.KeyboardButton(category) for category in commands_categories]
 f_button_category = types.ReplyKeyboardMarkup(resize_keyboard=True)
-f_button_category.add(*buttons_categories)
+f_button_category.add(*buttons_categories).add('Главное меню')
 
 
 
 
 async def start(message: types.Message):
     # Выбор категории
-    if message.text == CHOOSE_CATEGORY:
+    if message.text == NAME:
         await message.answer('Объявления из каких категорий будут вам присылаться?', reply_markup=f_button_category)
         return True
 

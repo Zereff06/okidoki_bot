@@ -37,16 +37,20 @@ async def starting_okidoki():
             if data is False: continue
 
             for user_id in data['users'][0]: # Для каждого подписсичка
-                # user = user[0]
+                sub_categories = sql.sql_get_name_and_value(f"SELECT * FROM sub_categories WHERE user_id= {user_id}")
                 notification = sql.check_user_notification_timer(user_id)
+
                 for post in data['posts']: # Отправляются все посты на которые он подписан
                     try:
-                        await commands.send_post(user_id, post, notification)
-                        if notification: notification = False
+                        if sub_categories[post['sub_category']] == 1:
+                            try:
+                                await commands.send_post(user_id, post, notification)
+                                if notification: notification = False
+                            except:
+                                print("Ошибка при отправке след. юзеру:", user_id)
                     except:
-                        print("Ошибка при отправке след. юзеру:", user_id)
-
-            okidoki.update_bd()
+                        pass
+            okidoki.update_posts_link()
     print('Updated posts')
 
 

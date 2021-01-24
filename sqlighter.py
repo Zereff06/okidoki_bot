@@ -42,7 +42,7 @@ class SQLighter:
 
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS categories (
-                                user_id     INT         NOT NULL UNIQUE,
+                                user_id     INT (10) NOT NULL UNIQUE,
                                 clothes     BOOLEAN  DEFAULT 0,
                                 children    BOOLEAN  DEFAULT 0,
                                 cars        BOOLEAN  DEFAULT 0,
@@ -60,7 +60,7 @@ class SQLighter:
 
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS cities (
-                            user_id         INT         NOT NULL UNIQUE,
+                            user_id         INT (10)    NOT NULL UNIQUE,
                             tallinn         BOOLEAN     DEFAULT 0,
                             tartu           BOOLEAN     DEFAULT 0,
                             narva           BOOLEAN     DEFAULT 0,
@@ -126,58 +126,53 @@ class SQLighter:
 
     def update_subscription(self, user_id, status):
         """Обновляем статус подписки пользователя"""
-        with self.conn:
-            result = self.cursor.execute(f"UPDATE users SET subscription = {status} WHERE user_id = {user_id}")
-            self.conn.commit()
-            return bool(result)
+        result = self.cursor.execute(f"UPDATE users SET subscription = {status} WHERE user_id = {user_id}")
+        self.conn.commit()
+        return bool(result)
 
     def update_item_bool(self, table, item, user_id):
-        with self.conn:
-            # Проверка, есть ли юзер вообще в таблице
-            user_exist_in_table = self.cursor.execute(f"SELECT EXISTS(SELECT user_id FROM {table} WHERE  user_id = {user_id} )").fetchone()[0]
-            if not user_exist_in_table:
-                print(f"INSERT INTO {table}(user_id) VALUES ({user_id})")
-                self.cursor.execute(f"INSERT INTO {table}(user_id) VALUES ({user_id})")
-                self.conn.commit()
+        # Проверка, есть ли юзер вообще в таблице
+        user_exist_in_table = self.cursor.execute(f"SELECT EXISTS(SELECT user_id FROM {table} WHERE  user_id = {user_id} )").fetchone()[0]
+        if not user_exist_in_table:
+            print(f"INSERT INTO {table}(user_id) VALUES ({user_id})")
+            self.cursor.execute(f"INSERT INTO {table}(user_id) VALUES ({user_id})")
+            self.conn.commit()
 
-            # Если есть значение в таблице,то вернёт True
-            is_exist_item = self.cursor.execute(f"SELECT {item} FROM {table} WHERE  user_id = {user_id}").fetchone()
-            is_exist_item = is_exist_item[0]
-            if is_exist_item:
-                self.cursor.execute(f"UPDATE {table} SET {item} = 0 WHERE user_id = {user_id}")
-                self.conn.commit()
-                return True
-            else:
-                self.cursor.execute(f"UPDATE {table} SET {item} = 1 WHERE user_id = {user_id}")
-                self.conn.commit()
-                return False
+        # Если есть значение в таблице,то вернёт True
+        is_exist_item = self.cursor.execute(f"SELECT {item} FROM {table} WHERE  user_id = {user_id}").fetchone()
+        is_exist_item = is_exist_item[0]
+        if is_exist_item:
+            self.cursor.execute(f"UPDATE {table} SET {item} = 0 WHERE user_id = {user_id}")
+            self.conn.commit()
+            return True
+        else:
+            self.cursor.execute(f"UPDATE {table} SET {item} = 1 WHERE user_id = {user_id}")
+            self.conn.commit()
+            return False
 
     def get_users_data(self, table, cell, user_id):
-        with self.conn:
             return self.cursor.execute(f"SELECT {cell} FROM {table} WHERE user_id={user_id}")
 
     # can delete...
     def get_unique_items(self, cell):
         """Вернёт только уникальные значения из выборки"""
-        with self.conn:
-            return self.cursor.execute(f"SELECT {cell} FROM table  GROUP BY {cell}")
+        return self.cursor.execute(f"SELECT {cell} FROM table  GROUP BY {cell}")
 
 
     def get_table_params(self, tables, params=''):
         """Достать все данные из таблицы с улсовием"""
-        with self.conn:
-            data_table = self.cursor.execute(f"SELECT * FROM {tables}  WHERE {params}")
-            names = list(map(lambda x: x[0], data_table.description))
-            category_dict = {}
+        data_table = self.cursor.execute(f"SELECT * FROM {tables}  WHERE {params}")
+        names = list(map(lambda x: x[0], data_table.description))
+        category_dict = {}
 
-            values = data_table.fetchall()
-            for i, category in enumerate(names):
-                if i == 0: continue
-                users_array = []
-                for user in values:
-                    if user[i] == 1: users_array.append(user[0])
-                category_dict[names[i]] = users_array
-            return category_dict
+        values = data_table.fetchall()
+        for i, category in enumerate(names):
+            if i == 0: continue
+            users_array = []
+            for user in values:
+                if user[i] == 1: users_array.append(user[0])
+            category_dict[names[i]] = users_array
+        return category_dict
 
     def update_last_notification_timer(self, user_id):
         self.cursor.execute(f"UPDATE users SET last_timer_time = '{datetime.datetime.now()}' WHERE user_id = {user_id}")
@@ -197,6 +192,16 @@ class SQLighter:
             result = result[0]
             self.update_last_notification_timer(result)
         return result
+
+    def sql_get_name_and_value (self, query):
+        sql_result = sql.cursor.execute(query)
+        if sql_result:
+            sql_values = sql_result.fetchone()
+            result = {v[0]:sql_values[i] for i,v in enumerate(sql_result.description)}
+            return result
+        else :
+            print(f'Ошибка с запросом: {query}')
+            return False
 
 
 sql = SQLighter('server.db')

@@ -25,7 +25,7 @@ class Okidoki:
     def test_mode(self):
         if TEST_MODE == 'links':
             if UPDATE_SQL:
-                self.update_bd()
+                self.update_posts_link()
             exit()
 
         if TEST_MODE == 'pets':
@@ -119,7 +119,12 @@ class Okidoki:
             poster = 'https://www.ruprom.ru/templates/images/newdesign/noimage2.png'
             description = 'Без описания'
             city = f"{config.find_item(config.cities, 'eng', self.city, 'ru')}"
+            sub_category = 'none'
 
+            try:
+                sub_category = html.select('.breadcrumbs li')[2].select_one('a span').text
+            except:
+                pass
             try:
                 price = html.select_one('.item-details .price').text
             except:
@@ -155,7 +160,9 @@ class Okidoki:
                 "image": poster,
                 "description": description,
                 "price": price,
-                "city": city
+                "city": city,
+                "sub_category" : sub_category
+
             }
             posts_info.append(info)
         return posts_info
@@ -179,7 +186,7 @@ class Okidoki:
 
         return [get_posts, get_premiums]
 
-    def update_bd(self):
+    def update_posts_link(self):
         last_posts = self.new_last_posts
 
         if len(last_posts) > 0:

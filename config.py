@@ -1,10 +1,11 @@
 import secret
+import sqlighter
 
 settings = {
     "API_TOKEN" : secret.API_TOKEN,
     "ADMIN_ID": secret.ADMIN_ID,
     "HOST": 'https://www.okidoki.ee',
-    'HOST_POSTS': 'https://www.okidoki.ee/ru/buy/'
+    'HOST_POSTS': 'https://www.okidoki.ee/ru/buy/',
 }
 
 sort = {
@@ -42,6 +43,11 @@ categories  = [
     {"ru" : "Недвижимость",          "eng" : "realty",      "link" : "ru/buy/15/"},
     {"ru" : "Работа",                "eng" : "job",         "link" : "ru/buy/3612/"}
 ]
+
+
+
+
+
 
 def find_item(array , key, value, query):
     for item in array:

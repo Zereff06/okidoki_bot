@@ -1,12 +1,14 @@
+import sqlighter
 from bs4 import BeautifulSoup as bs
 import config
 import requests
-import sqlighter
 
 sql = sqlighter.sql
 HOST = config.settings['HOST']
 TEST_MODE = False
 UPDATE_SQL = False
+
+
 
 
 class Okidoki:
@@ -19,6 +21,17 @@ class Okidoki:
         self.old_premium_posts = []
         self.new_last_posts = []
         self.count_of_premiums = 0
+
+    def test_mode(self):
+        if TEST_MODE == 'links':
+            if UPDATE_SQL:
+                self.update_posts_link()
+            exit()
+
+        if TEST_MODE == 'pets':
+            if self.category != 'pets': return True
+            if self.city != 'tallinn': return True
+        if TEST_MODE == 'parsing_off': return True
 
     def get_data(self):
         return self.start()
@@ -106,7 +119,12 @@ class Okidoki:
             poster = 'https://www.ruprom.ru/templates/images/newdesign/noimage2.png'
             description = 'Без описания'
             city = f"{config.find_item(config.cities, 'eng', self.city, 'ru')}"
+            sub_category = 'none'
 
+            try:
+                sub_category = html.select('.breadcrumbs li')[2].select_one('a span').text
+            except:
+                pass
             try:
                 price = html.select_one('.item-details .price').text
             except:
@@ -142,7 +160,9 @@ class Okidoki:
                 "image": poster,
                 "description": description,
                 "price": price,
-                "city": city
+                "city": city,
+                "sub_category" : sub_category
+
             }
             posts_info.append(info)
         return posts_info
@@ -166,7 +186,7 @@ class Okidoki:
 
         return [get_posts, get_premiums]
 
-    def update_bd(self):
+    def update_posts_link(self):
         last_posts = self.new_last_posts
 
         if len(last_posts) > 0:
@@ -190,13 +210,3 @@ class Okidoki:
 
         sql.conn.commit()
 
-    def test_mode(self):
-        if TEST_MODE == 'links':
-            if UPDATE_SQL:
-                self.update_bd()
-            exit()
-
-        if TEST_MODE == 'pets':
-            if self.category != 'pets': return True
-            if self.city != 'tallinn': return True
-        if TEST_MODE == 'parsing_off': return True

@@ -1,8 +1,9 @@
 /venv
 /.idea
 /__pycache__
-
-/config.py
-/server.db
-/.gitignore
+buttons/__pycache__/
+config.py
+server.db
+.gitignore
 /secret.py
+/test.py

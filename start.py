@@ -26,36 +26,36 @@ HOST_POSTS = config.settings['HOST_POSTS']
 
 
 # Логика запуска парсинга и отправка
-async def starting_okidoki():
-    categories = config.categories
+async def city_loop(category):
     cities = config.cities
+    for city in cities:
+        okidoki = ok.Okidoki(category, city)
+        data = okidoki.get_data()
 
-    for category in categories:
+        if data is False:
+            continue
 
-        for city in cities:
+        for user in data['users']:  # Для каждого подписсичка
+            user = user[0]
+            for post in data['posts']:  # Отправляются все посты на которые он подписан
+                try:
+                    await commands.send_post(user, post)
+                except:
+                    print("Не удалось найти слудуюший чат: " + user)
 
-            okidoki = ok.Okidoki(category, city)
-            data = okidoki.get_data()
-
-            if data is False:
-                continue
-
-            for user in data['users']: # Для каждого подписсичка
-                user = user[0]
-                for post in data['posts']: # Отправляются все посты на которые он подписан
-                    try:
-                        await commands.send_post(user, post)
-                    except:
-                        print("Не удалось найти слудуюший чат: " + user)
-
-            okidoki.update_bd()
-    print('Updated posts')
+        print(category['ru'], city['ru'] , 'finished')
+        print('{ ',data['posts'], ' }')
+        okidoki.update_bd()
 
 
 async def scheduled(wait_for):
     while True:
         print('start parse')
-        await starting_okidoki()
+
+        categories = config.categories
+        for category in categories:
+            loop.create_task(city_loop(category))
+
         print('Finish')
         await asyncio.sleep(wait_for)
 
